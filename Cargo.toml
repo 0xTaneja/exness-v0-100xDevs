@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "crates/api", "crates/api-server", "crates/batch-uploader", "crates/price-poller",
+    "crates/shared", "crates/tests", "crates/trigger-engine", "crates/ws-server",
+    "crates/email-worker", "crates/hedging-worker",
+]
+resolver = "2"
+
+
