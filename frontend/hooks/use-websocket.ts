@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react"
 
-const WS_URL = "ws://localhost:3003/ws"
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3003/ws"
 const RECONNECT_BASE = 1000
 const RECONNECT_MAX = 30000
 

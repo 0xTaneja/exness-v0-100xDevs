@@ -82,7 +82,8 @@ async fn main() {
     println!("Connected to PostgreSQL");
 
     
-    let client: Client = redis::Client::open("redis://127.0.0.1/").unwrap();
+    let redis_url = std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1/".to_string());
+    let client: Client = redis::Client::open(redis_url.as_str()).unwrap();
     let mut pubsub = client.get_async_pubsub().await.unwrap();
     pubsub.subscribe("price:btc").await.unwrap();
     println!("Subscribed to Redis price:btc");

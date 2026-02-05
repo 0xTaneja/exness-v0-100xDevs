@@ -14,7 +14,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let (ws_stream, _) = connect_async(url).await?;
     let (mut write, mut read) = ws_stream.split();
-    let redis_client = redis::Client::open("redis://127.0.0.1/")?;
+    let redis_url = std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1/".to_string());
+    let redis_client = redis::Client::open(redis_url.as_str())?;
     let mut redis_conn = redis_client.get_multiplexed_async_connection().await?;
 
     let txt = serde_json::to_string(&subscription_json).unwrap();

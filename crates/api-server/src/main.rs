@@ -493,7 +493,8 @@ struct AppState { pool: PgPool, redis: Client }
 async fn main() {
     let pool = shared::db::create_pool().await.expect("Failed to connect to DB");
     let cors = CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any);
-    let client = redis::Client::open("redis://127.0.0.1/").expect("Failed to connect to Redis");
+    let redis_url = std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1/".to_string());
+    let client = redis::Client::open(redis_url.as_str()).expect("Failed to connect to Redis");
     let astate = AppState { pool, redis: client };
 
     let app = Router::new()
@@ -510,7 +511,8 @@ async fn main() {
         .layer(cors)
         .with_state(astate);
 
-    println!("API server running on http://127.0.0.1:3001");
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:3001").await.unwrap();
+    let port = std::env::var("PORT").unwrap_or_else(|_| "3001".to_string());
+    println!("API server running on http://0.0.0.0:{}", port);
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port)).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }

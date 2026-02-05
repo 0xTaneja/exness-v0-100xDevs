@@ -9,7 +9,8 @@ use redis::AsyncCommands;
 async fn main() {
     println!("Trigger Engine starting...");
 
-    let client = redis::Client::open("redis://127.0.0.1/").unwrap();
+    let redis_url = std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1/".to_string());
+    let client = redis::Client::open(redis_url.as_str()).unwrap();
     let mut pubsub = client.get_async_pubsub().await.unwrap();
     let pool = shared::db::create_pool().await.expect("Failed to Connect to Db");
 
@@ -227,7 +228,8 @@ async fn close_position(pool: &PgPool, position: &Position, close_price: Decimal
     }
 
     
-    let redis_client = redis::Client::open("redis://127.0.0.1/").unwrap();
+    let redis_url = std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1/".to_string());
+    let redis_client = redis::Client::open(redis_url.as_str()).unwrap();
     if let Ok(mut conn) = redis_client.get_multiplexed_async_connection().await {
         let event = serde_json::json!({
             "event_type": "Position Auto-Closed",

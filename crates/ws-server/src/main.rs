@@ -12,7 +12,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let redis_tx = tx.clone();
 
     tokio::spawn(async move {
-        let client = redis::Client::open("redis://127.0.0.1/").unwrap();
+        let redis_url = std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1/".to_string());
+        let client = redis::Client::open(redis_url.as_str()).unwrap();
         let mut pubsub = client.get_async_pubsub().await.unwrap();
         pubsub.subscribe("price:btc").await.unwrap();
         pubsub.subscribe("orderbook:btc").await.unwrap();
@@ -31,8 +32,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     let app = Router::new().route("/ws", any(ws_handler)).with_state(tx);
-    println!("WebSocket server running on ws://127.0.0.1:3003/ws");
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:3003").await.unwrap();
+    let port = std::env::var("PORT").unwrap_or_else(|_| "3003".to_string());
+    println!("WebSocket server running on ws://0.0.0.0:{}/ws", port);
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port)).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 
     Ok(())

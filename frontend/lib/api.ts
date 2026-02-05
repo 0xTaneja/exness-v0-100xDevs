@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:3001"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
 
 // Asset IDs
 export const BTC_ASSET_ID = "9191415d-caf6-41db-a556-b660c2b8d398"
